@@ -1,30 +1,41 @@
 *** Settings ***
 Documentation     Tests for battle calculation functionality
 Library           Browser
-Suite Setup       Open Browser To Main Page
-Suite Teardown    Close Browser
+Resource          common_keywords.resource
+Resource          common_selectors.resource
+
+# Suite Setup       Open Browser To Main Page
+# Suite Teardown    Close Browser
 
 *** Variables ***
-${SERVER}         localhost
-${PORT}           3000
-${BROWSER}        chromium
-${VALID URL}      http://${SERVER}:${PORT}/
-${TIMEOUT}        10s
 
 *** Test Cases ***
+Should Display Attacker Selection
+    Given I open the main page
+    When I add a "Warrior" attacker
+    Then the attacker selection should be visible
+
+Should display Defender Selection
+    Given I open the main page
+    When I add a "Warrior" defender
+    Then the defender selection should be visible
+
 Should Calculate Damage Between Units
-    Wait For Elements State    [data-testid="attacker-selection"]    visible    timeout=${TIMEOUT}
-    Click    [data-testid="attacker-warrior"]
-    Wait For Elements State    [data-testid="defender-selection"]    visible    timeout=${TIMEOUT}
-    Click    [data-testid="defender-warrior"]
-    # Wait For Elements State    [data-testid="calculate-button"]    visible    timeout=${TIMEOUT}
-    # Click    [data-testid="calculate-button"]
-    Wait For Elements State    [data-testid="damage-result"]    visible    timeout=${TIMEOUT}
-    Get Element Count    [data-testid="damage-result"]    >=    1
+    Given I add an attacker with 10 attack
+    When I add a defender with 5 defense
+    Then the damage should be 5    
 
 *** Keywords ***
-Open Browser To Main Page
-    New Browser    browser=${BROWSER}    headless=true
-    New Context    viewport={'width': 1920, 'height': 1080}
-    New Page    ${VALID URL}
-    Wait For Elements State    body    visible    timeout=${TIMEOUT}
+i add a "${unit_type}" attacker
+    Click    ${Attacker_unit_selector} ${${unit_type}_loc}
+
+the attacker selection should be visible
+
+
+i add a "${unit_type}" defender
+    [Arguments]    ${unit_type}
+    Click    [data-testid="${defender}-defender"]    
+
+the defender selection should be visible
+    Wait For Elements State    [data-testid="defender-selection"]    visible
+
